@@ -23,7 +23,6 @@ async function run() {
     try {
         const destinationCollection = client.db('vromon-db').collection('destination');
         const servicesCollection = client.db('vromon-db').collection('services');
-        const hotelCollection = client.db('vromon-db').collection('hotels');
 
 
         app.get('/destinations', async (req, res) => {
@@ -47,11 +46,11 @@ async function run() {
             res.send(services);
         })
 
-        app.get('/hotels', async (req, res) => {
-            const query = {};
-            const cursor = hotelCollection.find(query);
-            const hotels = await cursor.toArray();
-            res.send(hotels);
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const servicesList = await servicesCollection.findOne(query);
+            res.send(servicesList);
         })
 
 
