@@ -23,6 +23,10 @@ async function run() {
     try {
         const destinationCollection = client.db('vromon-db').collection('destination');
         const servicesCollection = client.db('vromon-db').collection('services');
+        const toursCollection = client.db('vromon-db').collection('tours');
+        const usersCollection = client.db('vromon-db').collection('users');
+        const contactsCollection = client.db('vromon-db').collection('contacts');
+        const hotelOrdersCollection = client.db('vromon-db').collection('hotelOrders');
 
 
         app.get('/destinations', async (req, res) => {
@@ -53,7 +57,36 @@ async function run() {
             res.send(servicesList);
         })
 
+        app.post('/tours', async (req, res) => {
+            const tour = req.body;
+            const result = await toursCollection.insertOne(tour);
+            res.send(result);
+        })
 
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.post('/contacts', async (req, res) => {
+            const contact = req.body;
+            const result = await contactsCollection.insertOne(contact);
+            res.send(result);
+        })
+
+        app.post('/hotelBookings', async (req, res) => {
+            const order = req.body;
+            const result = await hotelOrdersCollection.insertOne(order);
+            res.send(result);
+        })
+
+        app.get('/hotelBookings', async (req, res) => {
+            const query = {};
+            const cursor = hotelOrdersCollection.find(query);
+            const bookedHotels = await cursor.toArray();
+            res.send(bookedHotels);
+        })
 
     }
     finally {
