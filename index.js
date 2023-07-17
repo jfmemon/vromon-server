@@ -29,6 +29,7 @@ async function run() {
         const contactsCollection = client.db('vromon-db').collection('contacts');
         const hotelOrdersCollection = client.db('vromon-db').collection('hotelOrders');
         const busTicketOrdersCollection = client.db('vromon-db').collection('busTicketOrders');
+        const flightTicketOrdersCollection = client.db('vromon-db').collection('flightTicketOrders');
 
 
         app.get('/destinations', async (req, res) => {
@@ -101,6 +102,19 @@ async function run() {
             const cursor = busTicketOrdersCollection.find(query);
             const bookedBusTicket = await cursor.toArray();
             res.send(bookedBusTicket);
+        })
+
+        app.post('/flightTicketBookings', async (req, res) => {
+            const order = req.body;
+            const result = await flightTicketOrdersCollection.insertOne(order);
+            res.send(result);
+        })
+
+        app.get('/flightTicketBookings', async (req, res) => {
+            const query = {};
+            const cursor = flightTicketOrdersCollection.find(query);
+            const bookedFlightTicket = await cursor.toArray();
+            res.send(bookedFlightTicket);
         })
 
     }
