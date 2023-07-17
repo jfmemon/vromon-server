@@ -20,6 +20,7 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
+
     try {
         const destinationCollection = client.db('vromon-db').collection('destination');
         const servicesCollection = client.db('vromon-db').collection('services');
@@ -27,6 +28,7 @@ async function run() {
         const usersCollection = client.db('vromon-db').collection('users');
         const contactsCollection = client.db('vromon-db').collection('contacts');
         const hotelOrdersCollection = client.db('vromon-db').collection('hotelOrders');
+        const busTicketOrdersCollection = client.db('vromon-db').collection('busTicketOrders');
 
 
         app.get('/destinations', async (req, res) => {
@@ -88,7 +90,21 @@ async function run() {
             res.send(bookedHotels);
         })
 
+        app.post('/busTicketBookings', async (req, res) => {
+            const order = req.body;
+            const result = await busTicketOrdersCollection.insertOne(order);
+            res.send(result);
+        })
+
+        app.get('/busTicketBookings', async (req, res) => {
+            const query = {};
+            const cursor = busTicketOrdersCollection.find(query);
+            const bookedBusTicket = await cursor.toArray();
+            res.send(bookedBusTicket);
+        })
+
     }
+
     finally {
 
     }
