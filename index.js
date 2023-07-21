@@ -72,10 +72,24 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const cursor = usersCollection.find(query);
+            const users = await cursor.toArray();
+            res.send(users);
+        })
+
         app.post('/contacts', async (req, res) => {
             const contact = req.body;
             const result = await contactsCollection.insertOne(contact);
             res.send(result);
+        })
+
+        app.get('/contacts', async (req, res) => {
+            const query = {};
+            const cursor = contactsCollection.find(query);
+            const contactInfo = await cursor.toArray();
+            res.send(contactInfo);
         })
 
         app.post('/hotelBookings', async (req, res) => {
