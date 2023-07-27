@@ -21,7 +21,7 @@ const verifyJwt = (req, res, next) => {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             console.error('JWT Verification Error:', err);
-            return res.status(403).send({ error: true, message: 'unauthorized access.' });
+            return res.status(401).send({ error: true, message: 'unauthorized access.' });
         }
 
         if (!decoded || !decoded.email) {
@@ -114,19 +114,6 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         })
-
-        // app.get('/users/admin/:email', verifyJwt, async (req, res) => {
-        //     const email = req.params.email;
-        //     console.log('Email received:', email);
-
-        //     const decodedEmail = req.decoded.email;
-        //     if (email !== decodedEmail) {
-        //         res.send({ admin: false })
-        //     }
-        //     const query = { email: email };
-        //     const user = await usersCollection.findOne(query);
-        //     res.send({ admin: user?.role === 'admin' });
-        // })
 
         app.get('/users/admin/:email', verifyJwt, async (req, res) => {
             const email = req.params.email;
