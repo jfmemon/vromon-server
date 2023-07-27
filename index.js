@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-var jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
@@ -8,6 +8,34 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
+
+const verifyJwt = (req, res, next) => {
+    const authorization = req.headers.authorization;
+    if (!authorization) {
+        return res.status(401).send({ error: true, message: 'unauthorized access.' });
+    }
+
+    // bearer token
+    const token = authorization.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            console.error('JWT Verification Error:', err);
+            return res.status(403).send({ error: true, message: 'unauthorized access.' });
+        }
+
+        if (!decoded || !decoded.email) {
+            console.error('Invalid JWT Payload:', decoded);
+            return res.status(403).send({ error: true, message: 'unauthorized access.' });
+        }
+
+        // Ensure the decoded object is set correctly
+        req.decoded = decoded;
+        next();
+    });
+};
+
+
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.qp55ast.mongodb.net/?retryWrites=true&w=majority`;
@@ -36,8 +64,8 @@ async function run() {
 
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'});
-            res.send({token});
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ token });
         })
 
         app.get('/destinations', async (req, res) => {
@@ -86,6 +114,34 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         })
+
+        // app.get('/users/admin/:email', verifyJwt, async (req, res) => {
+        //     const email = req.params.email;
+        //     console.log('Email received:', email);
+
+        //     const decodedEmail = req.decoded.email;
+        //     if (email !== decodedEmail) {
+        //         res.send({ admin: false })
+        //     }
+        //     const query = { email: email };
+        //     const user = await usersCollection.findOne(query);
+        //     res.send({ admin: user?.role === 'admin' });
+        // })
+
+        app.get('/users/admin/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
+            console.log('Email received:', email);
+        
+            if (req.decoded.email !== email) {
+                res.send({ admin: false })
+            }
+        
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            const result = { admin: user?.role === 'admin' };
+            res.send(result);
+        });
+        
 
         app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
