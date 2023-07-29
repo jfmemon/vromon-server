@@ -96,6 +96,32 @@ async function run() {
             res.send(servicesList);
         })
 
+
+        // POST request to add data to the "hotels" array of a specific service
+        app.post('/services/:id', async (req, res) => {
+            const serviceId = req.params.id;
+            const newHotelsData = req.body; // Assuming the client sends an array of new hotel objects to add
+
+            try {
+                // Use the updateOne method with the positional operator ($) to push the new objects into the "hotels" array
+                const result = await servicesCollection.updateOne(
+                    { _id: new ObjectId(serviceId) }, // Filter the document by _id
+                    { $push: { 'hotels': { $each: newHotelsData } } } // Use the $each modifier to push multiple values into the array
+                );
+
+                if (result.modifiedCount === 1) {
+                    res.status(200).json({ acknowledged: true });
+                } else {
+                    res.status(404).json({ acknowledged: false });
+                }
+            } catch (error) {
+                console.error('Error updating hotels array in MongoDB:', error);
+                res.status(500).json({ error: 'Error updating data' });
+            }
+        });
+
+
+
         app.post('/tours', async (req, res) => {
             const tour = req.body;
             const result = await toursCollection.insertOne(tour);
@@ -118,17 +144,17 @@ async function run() {
         app.get('/users/admin/:email', verifyJwt, async (req, res) => {
             const email = req.params.email;
             console.log('Email received:', email);
-        
+
             if (req.decoded.email !== email) {
                 res.send({ admin: false })
             }
-        
+
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             const result = { admin: user?.role === 'admin' };
             res.send(result);
         });
-        
+
 
         app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
