@@ -36,8 +36,6 @@ const verifyJwt = (req, res, next) => {
 };
 
 
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.qp55ast.mongodb.net/?retryWrites=true&w=majority`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -100,23 +98,83 @@ async function run() {
         // POST request to add data to the "hotels" array of a specific service
         app.post('/services/:id', async (req, res) => {
             const serviceId = req.params.id;
-            const newHotelsData = req.body; // Assuming the client sends an array of new hotel objects to add
+            const id = '64a94a4c6b2df0def9f64cc5';
 
-            try {
-                // Use the updateOne method with the positional operator ($) to push the new objects into the "hotels" array
-                const result = await servicesCollection.updateOne(
-                    { _id: new ObjectId(serviceId) }, // Filter the document by _id
-                    { $push: { 'hotels': { $each: newHotelsData } } } // Use the $each modifier to push multiple values into the array
-                );
 
-                if (result.modifiedCount === 1) {
-                    res.status(200).json({ acknowledged: true });
-                } else {
-                    res.status(404).json({ acknowledged: false });
+            if (id == serviceId) {
+                const newTicketsData = req.body; // Assuming the client sends an array of new hotel objects to add
+
+                try {
+                    // Use the updateOne method with the positional operator ($) to push the new objects into the "hotels" array
+                    const result = await servicesCollection.updateOne(
+                        { _id: new ObjectId(serviceId) }, // Filter the document by _id
+                        { $push: { 'hotels': { $each: newTicketsData } } } // Use the $each modifier to push multiple values into the array
+                    );
+
+                    if (result.modifiedCount === 1) {
+                        res.status(200).json({ acknowledged: true });
+                    } else {
+                        res.status(404).json({ acknowledged: false });
+                    }
+                } catch (error) {
+                    console.error('Error updating hotels array in MongoDB:', error);
+                    res.status(500).json({ error: 'Error updating data' });
                 }
-            } catch (error) {
-                console.error('Error updating hotels array in MongoDB:', error);
-                res.status(500).json({ error: 'Error updating data' });
+            }
+        });
+
+
+        // POST request to add data to the "bus" array of a specific service
+        app.post('/services/bus/:id', async (req, res) => {
+            const serviceId = req.params.id;
+            const id = '64a94a4c6b2df0def9f64cc7';
+
+            if (id == serviceId) {
+                const newTicketsData = req.body; // Assuming the client sends an array of new hotel objects to add
+
+                try {
+                    // Use the updateOne method with the positional operator ($) to push the new objects into the "hotels" array
+                    const result = await servicesCollection.updateOne(
+                        { _id: new ObjectId(serviceId) }, // Filter the document by _id
+                        { $push: { 'bus': { $each: newTicketsData } } } // Use the $each modifier to push multiple values into the array
+                    );
+
+                    if (result.modifiedCount === 1) {
+                        res.status(200).json({ acknowledged: true });
+                    } else {
+                        res.status(404).json({ acknowledged: false });
+                    }
+                } catch (error) {
+                    console.error('Error updating bus array in MongoDB:', error);
+                    res.status(500).json({ error: 'Error updating data' });
+                }
+            }
+        });
+
+        // POST request to add data to the "flights" array of a specific service
+        app.post('/services/flights/:id', async (req, res) => {
+            const serviceId = req.params.id;
+            const id = '64a94a4c6b2df0def9f64cc6';
+
+            if (id == serviceId) {
+                const newTicketsData = req.body; // Assuming the client sends an array of new hotel objects to add
+
+                try {
+                    // Use the updateOne method with the positional operator ($) to push the new objects into the "hotels" array
+                    const result = await servicesCollection.updateOne(
+                        { _id: new ObjectId(serviceId) }, // Filter the document by _id
+                        { $push: { 'flights': { $each: newTicketsData } } } // Use the $each modifier to push multiple values into the array
+                    );
+
+                    if (result.modifiedCount === 1) {
+                        res.status(200).json({ acknowledged: true });
+                    } else {
+                        res.status(404).json({ acknowledged: false });
+                    }
+                } catch (error) {
+                    console.error('Error updating flights array in MongoDB:', error);
+                    res.status(500).json({ error: 'Error updating data' });
+                }
             }
         });
 
